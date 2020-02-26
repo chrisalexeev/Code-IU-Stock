@@ -23,31 +23,6 @@ class Stock:
                     elif c_index == 4:
                         if r_index != 0: self.close.append(float(col))
                         else: self.close.append(col)
-    
-    def simple_moving_avg(self,days):
-        """
-        Creates simple moving average data from close data 
-        """
-        sma_close   = ['Close']
-        val_list    = []
-        sma_val     = 0
-        first       = True
-
-        for i,close in enumerate(self.close):
-            if i != 0:
-                # 
-                if i == days + 1: first = False
-                if first:
-                    sma_val += float(close)
-                    sma_close.append(sma_val/i)
-                    val_list.append(close)
-                else:
-                    val_list.append(close)
-                    val_list = val_list[1:]
-                    sma_val = sum(val_list)                    
-                    sma_close.append(sma_val/days)      
-        
-        return sma_close
 
     def crude_graph(self,data=None,start=0,end=None):
         """
@@ -87,9 +62,9 @@ if __name__ == "__main__":
     filename = "BABA.csv"
     baba = Stock("BABA",filename)
 
-    sma21 = baba.simple_moving_avg(21)
-    sma50 = baba.simple_moving_avg(50)
+    # sma21 = baba.simple_moving_avg(21)
+    # sma50 = baba.simple_moving_avg(50)
     
-    baba.crude_graph(data=(sma21,sma50),start=1000)
+    # baba.crude_graph(data=(sma21,sma50),start=1000)
 
     
