@@ -6,7 +6,10 @@ class Stock:
         self.name = name
         self.date = []
         self.close = []
+
         self.load_data(filename)
+        self.current_price = close[-1]
+        
 
     def load_data(self,filename):
         """

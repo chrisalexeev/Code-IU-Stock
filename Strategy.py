@@ -13,7 +13,7 @@ class SMA_Strategy(Strategy):
     def __init__(self):
         Strategy.__init__(self)
 
-    def simple_moving_avg(self,stock,days):
+    def full_sma(self,stock,days):
         """
         Create x day simple moving average data for given stock from close data
         """
@@ -38,28 +38,38 @@ class SMA_Strategy(Strategy):
         
         return sma_close
 
-    def order_type(self,moving_avg_data, price, risk, account):
+    def closing_sma_price(self,stock,days):
+        vals = stock.close[-days]
+        return sum(vals)/days
+
+    def order_type(self, stock, account):
         """
         Check if stock should be bought or sold,
         and buys or sells it respectively
         """
+        sma21 = self.closing_sma_price(stock,21)
+        price = stock.price
+        account_size = account.account_size
+        current_trade = account.current_trade
+        risk = account.risk
+
         # if price exceeds SMA and account is not currently buying, execute a buy
-        if (price > moving_avg_data[-1]) and (account.current_trade != "Buy"):
+        if (price > sma21[-1]) and (current_trade != "Buy"):
             
             account.buy()
 
-            for x, y in account.running_trades.items():
-                if x == "Order_Type":
-                    y.append("Buy")
-                elif x == "Order_Size":
-                    y.append(self.order_size(account.account_size, price, account.risk))
-                elif x == "Price_Paid":
-                    y.append(price)
+            for folder, history in account.running_trades.items():
+                if folder == "Order_Type":
+                    history.append("Buy")
+                elif folder == "Order_Size":
+                    history.append(self.order_size(account_size, price, risk))
+                elif folder == "Price_Paid":
+                    history.append(price)
                 else:
                     pass
         
         # if price dips below SMA and account is not currently selling, execute a sell
-        elif (price < moving_avg_data[-1]) and (account.current_trade != "Sell"): 
+        elif (price < sma21[-1]) and (current_trade != "Sell"): 
 
             account.sell()
 
@@ -67,7 +77,7 @@ class SMA_Strategy(Strategy):
                 if folder == "Order_Type":
                     history.append("Sell")
                 elif folder == "Order_Size":
-                    history.append(self.order_size(account.account_size, price, account.risk))
+                    history.append(self.order_size(account_size, price, risk))
                     print(i)
                 elif folder == "Price_Paid":
                     history.append(price)
