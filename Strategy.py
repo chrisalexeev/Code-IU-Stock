@@ -39,7 +39,7 @@ class SMA_Strategy(Strategy):
         return sma_close
 
     def closing_sma_price(self,stock,days):
-        vals = stock.close[-days]
+        vals = stock.close[-days:]
         return sum(vals)/days
 
     def order_type(self, stock, account):
@@ -54,7 +54,7 @@ class SMA_Strategy(Strategy):
         risk = account.risk
 
         # if price exceeds SMA and account is not currently buying, execute a buy
-        if (price > sma21[-1]) and (current_trade != "Buy"):
+        if (price > sma21) and (current_trade != "Buy"):
             
             account.buy()
 
@@ -69,7 +69,7 @@ class SMA_Strategy(Strategy):
                     pass
         
         # if price dips below SMA and account is not currently selling, execute a sell
-        elif (price < sma21[-1]) and (current_trade != "Sell"): 
+        elif (price < sma21) and (current_trade != "Sell"): 
 
             account.sell()
 

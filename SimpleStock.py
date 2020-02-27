@@ -8,7 +8,7 @@ class Stock:
         self.close = []
 
         self.load_data(filename)
-        self.current_price = close[-1]
+        self.price = self.close[-1]
         
 
     def load_data(self,filename):
