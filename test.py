@@ -1,4 +1,4 @@
-import SimpleStock
+from SimpleStock import Stock
 import Account
 from Strategy import SMA_Strategy
 
@@ -6,7 +6,9 @@ from Strategy import SMA_Strategy
 if __name__ == "__main__":
 
     filename = "BABA.csv"
-    baba = SimpleStock.Stock("BABA",filename)
+    baba = Stock("BABA",filename)
+
+    baba.crude_graph()
 
     my_account = Account.Account("Chris's Account")
 

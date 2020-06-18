@@ -2,6 +2,11 @@
 
 Takes stock, account, and strategy info to execute trades.
 
+REQUIREMENTS:
+- pandas
+- matplotlib
+- mplfinance
+
 TODO:
 - add Pandas & integrate Matt's code
 - test account features
