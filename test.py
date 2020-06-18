@@ -1,22 +1,12 @@
 from SimpleStock import Stock
-import Account
-from Strategy import SMA_Strategy
+from Study import MovingAverage
 
 
 if __name__ == "__main__":
+    baba = Stock("BABA", "BABA.csv")
 
-    filename = "BABA.csv"
-    baba = Stock("BABA",filename)
+    # add two moving average studies study
+    baba.add_study(MovingAverage(20, type='simple'))
+    baba.add_study(MovingAverage(20, type='exponential'))
 
-    baba.crude_graph()
-
-    my_account = Account.Account("Chris's Account")
-
-    test_strategy = SMA_Strategy()
-
-    # print(sma21[-100:])
-
-    test_strategy.order_type(baba,my_account)
-
-    print(my_account.current_trade)
-
+    baba.plot()
