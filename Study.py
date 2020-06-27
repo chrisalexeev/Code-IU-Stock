@@ -2,15 +2,15 @@ import numpy as np
 
 class Study:
 	def __init__(self):
-		self.funcs = []
 		self.plots = []
 		self.lower = False
 
 	def __call__(self, points, index):
-		return self.funcs[0](points, index)
+		return self.plots[0]['function'](points, index)
 
-	def add_plot(self, func):
-		self.funcs.append(func)
+	def add_plot(self, func, **kwargs):
+		kwargs['function'] = func
+		self.plots.append(kwargs)
 
 # example study
 class GetClose(Study):
@@ -78,9 +78,9 @@ class MACD(Study):
 		self.macd = []
 		self.signal = []
 
-		self.add_plot(self.macd_line)
-		self.add_plot(self.signal_line)
-		self.add_plot(self.diff_line)
+		self.add_plot(self.macd_line, color='blue')
+		self.add_plot(self.signal_line, color='red')
+		self.add_plot(self.diff_line, type='bar')
 		self.add_plot(self.zero_line)
 
 		self.lower = True
