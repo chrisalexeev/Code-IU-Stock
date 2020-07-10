@@ -90,23 +90,4 @@ class MovingAverageCrossover(Strategy):
     if self.shortMA[index] > self.longMA[index] and self.shortMA[index-1] <= self.longMA[index-1]:
       self.buy(buy_amount, self.stock.data["Close"][index])
     if self.shortMA[index] < self.longMA[index] and self.shortMA[index-1] >= self.longMA[index-1]:
-      self.sell(buy_amount, self.stock.data["Close"][index])
-
-'''
-How I (within reason) want a strategy to look like:
-
-def __init__(self):
-  self.baba = Stock("baba.csv")
-  macd = MACD()
-  average = MovingAverage(period=50, type='exponential' (param="Close"))
-
-  self.diffValues = macd(baba)["diff"]
-  self.longMa = average(baba)["average"]
-
-def manage(self, index):
-  if self.diffValues[index] > 0 and self.longMa.data[index] > baba.data["Close"][index]:
-    self.buy(10, self.baba.data["Close"][index])
-
-  if self.diffValues[index] < 0 and self.longMa.data[index] < baba.data["Close"][index]:
-    self.sell(10, self.baba.data["Close"][index])
-'''
+      self.sell(self.position_size, self.stock.data["Close"][index])

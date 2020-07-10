@@ -26,4 +26,4 @@ if __name__ == "__main__":
     print(str(buy_and_hold.getPL())+"%")
     print(str(ma_crossover.getPL())+"%")
 
-    # baba.plot()
+    baba.plot()
