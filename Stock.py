@@ -30,8 +30,12 @@ class Stock:
             self.curr_panel += 1
         print("study added")
 
-    def addplot(self, data):
-        self.plots.append(mpf.make_addplot(data))
+    def addplot(self, data, lower=False, plot_type='line', color='blue'):
+        if lower:
+            self.plots.append(mpf.make_addplot(data, panel=self.curr_panel, type=plot_type, color=color))
+            self.curr_panel += 1
+        else:
+            self.plots.append(mpf.make_addplot(data, panel=0, type=plot_type, color=color))
 
     def __str__(self):
         return f"{self.ticker}"

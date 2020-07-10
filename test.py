@@ -18,7 +18,12 @@ if __name__ == "__main__":
     buy_and_hold.run()
     ma_crossover.run()
 
-    print(buy_and_hold.getPL())
-    print(ma_crossover.getPL())
+    # plot our balance over time and the buys and sells
+    baba.addplot(ma_crossover.data['balance'], lower=True, plot_type='bar')
+    baba.addplot(ma_crossover.data['buys'], lower=False, plot_type='scatter', color='green')
+    baba.addplot(ma_crossover.data['sells'], lower=False, plot_type='scatter', color='red')
 
-    baba.plot()
+    print(str(buy_and_hold.getPL())+"%")
+    print(str(ma_crossover.getPL())+"%")
+
+    # baba.plot()
