@@ -100,10 +100,11 @@ class MovingAverage(Study):
 		return average
 
 class MACD(Study):
-	def __init__(self):
+	def __init__(self, param="Close"):
 		super().__init__()
-		self.shortEMA = MovingAverage(period=12, type='exponential').get_function()
-		self.longEMA = MovingAverage(period=26, type='exponential').get_function()
+		self.param = param
+		self.shortEMA = MovingAverage(period=12, type='exponential', param=self.param).get_function()
+		self.longEMA = MovingAverage(period=26, type='exponential', param=self.param).get_function()
 		self.signalEMA = MovingAverage(period=9, type='exponential', param='macd').get_function()
 
 		self.add_plot('macd', self.macd_line, color='blue')
@@ -132,19 +133,22 @@ class MACD(Study):
 		return self.moving_average(self.data, i)
 
 class RSI(Study):
-	def __init__(self, length=14, avg_type='wilders'):
+	def __init__(self, length=14, avg_type='wilders', param="Close"):
 		super().__init__()
 		self.lower = True
 		self.length = length
+		self.param = param
+
 		self.gain_avg = MovingAverage(period=self.length, type=avg_type, param='gain').get_function()
 		self.loss_avg = MovingAverage(period=self.length, type=avg_type, param='loss').get_function()
 
 		self.add_plot('rsi', self.rsi)
 	
-	def rsi(self, price, i):
+	def rsi(self, points, i):
 		# calculate gain/loss for the day
-		self.data.add_point('gain', 0 if price["Close"][i]<price["Close"][i-1] or i==0 else price["Close"][i]-price["Close"][i-1])
-		self.data.add_point('loss', 0 if price["Close"][i]>price["Close"][i-1] or i==0 else abs(price["Close"][i]-price["Close"][i-1]))
+		price = points[self.param]
+		self.data.add_point('gain', 0 if price[i]<price[i-1] or i==0 else price[i]-price[i-1])
+		self.data.add_point('loss', 0 if price[i]>price[i-1] or i==0 else abs(price[i]-price[i-1]))
 
 		# average gain/loss
 		self.data.add_point('avg_gain', self.gain_avg(self.data, i))
@@ -175,10 +179,12 @@ class AverageTrueRange(Study):
 		return max(one, max(two, three))
 
 class SentimentZoneOscillator(Study):
-	def __init__(self, length=14):
+	def __init__(self, length=14, param="Close"):
 		super().__init__()
 		self.lower = True
 		self.length = length
+		self.param = param
+
 		self.ema1 = MovingAverage(period=self.length, type='exponential', param='sign').get_function()
 		self.ema2 = MovingAverage(period=self.length, type='exponential', param='ema1').get_function()
 		self.ema3 = MovingAverage(period=self.length, type='exponential', param='ema2').get_function()
@@ -187,7 +193,7 @@ class SentimentZoneOscillator(Study):
 		self.add_plot('zero', self.zero, color='gray')
 
 	def szo(self, price, i):
-		self.data.add_point('sign', self.sign(price["Close"][i] - price["Close"][i-1]))
+		self.data.add_point('sign', self.sign(price[self.param][i] - price[self.param][i-1]))
 
 		# get ema of sign, then two more emas
 		ema1 = self.ema1(self.data, i)

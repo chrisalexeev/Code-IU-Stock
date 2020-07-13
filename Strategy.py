@@ -17,6 +17,9 @@ class Strategy:
     # prevent if we don't have enough money to buy
     if self.cash_balance < num*price: return
 
+    date = str(self.stock.data["Date"][self.current_index])
+    self.data.add_point('activity', 'buy,'+date+','+str(num)+','+str(price))
+
     self.bought = True
     self.position_size += num
     self.stock_balance += price*num
@@ -24,7 +27,10 @@ class Strategy:
   
   def sell(self, num, price):
     # prevent if we have nothing to sell
-    if self.position_size < num: return
+    if num > self.position_size or num == 0: return
+
+    date = str(self.stock.data["Date"][self.current_index])
+    self.data.add_point('activity', 'sell,'+date+','+str(num)+','+str(price))
 
     self.sold = True
     self.position_size -= num
@@ -35,15 +41,23 @@ class Strategy:
     buys = []
     sells = []
     balances = []
+    self.current_index = 0 # so we know which date we are on during buy/sell
+
     for i in range(len(self.stock.data)):
       # adjust the price of our stock balance from yesterday's close
       self.stock_balance += self.position_size * (self.stock.data["Open"][i]-self.stock.data["Close"][i-1])
 
+      self.starting_position_size = self.position_size
+      self.current_index = i
       # buy or sell
       self.manage(i)
 
       # adjust the price of our stock balance from open to close
-      self.stock_balance += self.position_size * (self.stock.data["Close"][i]-self.stock.data["Open"][i])
+      price_change = (self.stock.data["Close"][i]-self.stock.data["Open"][i])
+      if self.bought == True or self.sold == True:
+        self.stock_balance += self.starting_position_size * price_change
+      else:
+        self.stock_balance += self.position_size * price_change
 
       # keeping track of buying and selling
       if self.bought: buys.append(True)
@@ -65,7 +79,9 @@ class Strategy:
     pass
 
   def getPL(self):
-    return int(100 * (self.data['balance'][-1] - self.data['balance'][0]) / self.data['balance'][0])
+    start_balance = self.data['balance'][0]
+    end_balance = self.data['balance'][-1]
+    return round(float(100 * (end_balance - start_balance) / start_balance), 2)
 
 class BuyAndHold(Strategy):
   def __init__(self, stock, balance=10000):
@@ -74,7 +90,7 @@ class BuyAndHold(Strategy):
   def manage(self, index):
     if index == 0:
       # buy as much as we can
-      self.buy(int(self.cash_balance/self.stock.data["Close"][index]), self.stock.data["Close"][index])
+      self.buy(int(self.cash_balance/self.stock.data["Open"][index]), self.stock.data["Open"][index])
 
 class MovingAverageCrossover(Strategy):
   def __init__(self, stock, balance=10000):
@@ -85,9 +101,29 @@ class MovingAverageCrossover(Strategy):
     self.longMA = self.longMA(self.stock.data)['average']
   
   def manage(self, index):
-    buy_amount = int(self.cash_balance/self.stock.data["Close"][index]) # using all of our cash
+    stock_price = self.stock.data["Close"][index]
+    buy_amount = int(self.cash_balance/stock_price) # using all of our cash
 
     if self.shortMA[index] > self.longMA[index] and self.shortMA[index-1] <= self.longMA[index-1]:
-      self.buy(buy_amount, self.stock.data["Close"][index])
+      self.buy(buy_amount, stock_price)
     if self.shortMA[index] < self.longMA[index] and self.shortMA[index-1] >= self.longMA[index-1]:
-      self.sell(self.position_size, self.stock.data["Close"][index])
+      self.sell(self.position_size, stock_price)
+
+class MACDCrossover(Strategy):
+  def __init__(self, stock, balance=10000):
+    super().__init__(stock, balance)
+    self.macd = MACD()
+    self.macd = self.macd(self.stock.data)
+
+    self.diff = self.macd['diff']
+    self.macd = self.macd['macd']
+
+  def manage(self, i):
+    stock_price = self.stock.data["Close"][i]
+    buy_amount = int(self.cash_balance/stock_price) # using all of our cash
+
+    if self.diff[i]>0 and self.diff[i-1]<=0:
+      self.buy(buy_amount, stock_price)
+    if self.diff[i]<0 and self.diff[i-1]>=0:
+      self.sell(self.position_size, stock_price)
+
