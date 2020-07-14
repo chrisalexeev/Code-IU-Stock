@@ -23,9 +23,9 @@ class Stock:
             plot_type = plot['type'] if 'type' in plot else 'line'
             color = plot['color'] if 'color' in plot else 'blue'
             if study.lower:
-                self.plots.append(mpf.make_addplot(data_points[name], panel=self.curr_panel, type=plot_type, color=color))
+                self.plots.append(mpf.make_addplot(data_points[name], panel=self.curr_panel, type=plot_type, color=color, secondary_y=False))
             else:
-                self.plots.append(mpf.make_addplot(data_points[name], panel=0, type=plot_type, color=color))
+                self.plots.append(mpf.make_addplot(data_points[name], panel=0, type=plot_type, color=color, secondary_y=False))
         if study.lower:
             self.curr_panel += 1
         print("study added")

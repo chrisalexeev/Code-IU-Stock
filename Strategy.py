@@ -83,6 +83,22 @@ class Strategy:
     end_balance = self.data['balance'][-1]
     return round(float(100 * (end_balance - start_balance) / start_balance), 2)
 
+  # very crude right now
+  def getWinPercent(self):
+    activity = self.data['activity']
+    last_buy_price = 0
+    wins = 0
+    trades = len(activity)/2
+    for act in activity:
+      data = act.split(',')
+      if data[0] == 'buy':
+        last_buy_price = float(data[3])
+      else:
+        price = float(data[3])
+        if price > last_buy_price:
+          wins += 1
+    return wins/trades
+
 class BuyAndHold(Strategy):
   def __init__(self, stock, balance=10000):
     super().__init__(stock, balance)
